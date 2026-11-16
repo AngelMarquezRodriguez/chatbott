@@ -1,21 +1,24 @@
 FROM rocker/r-ver:4.3.0
 
-# Instalar librerías del sistema necesarias
-RUN apt-get update && apt-get install -y \
+# Instalar dependencias del sistema necesarias para RPostgres, XML y Curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar archivos del proyecto
-COPY . /app
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Instalar paquetes de R
-RUN Rscript -e "install.packages(c('plumber', 'DBI', 'RPostgres', 'stringr', 'stringi', 'httr', 'jsonlite', 'dplyr', 'tm'), repos='https://cloud.r-project.org')"
+# Copiar todos los archivos del proyecto al contenedor
+COPY . /app
 
-# Exponer el puerto
+# Instalar explícitamente todos los paquetes de R requeridos por el proyecto
+RUN R -e "install.packages(c('plumber', 'DBI', 'RPostgres', 'rvest', 'httr', 'xml2', 'stringr', 'stringi', 'jsonlite', 'igraph', 'tidygraph', 'dplyr', 'ggraph', 'ggplot2', 'tm', 'gtrendsR'), repos='https://cloud.r-project.org')"
+
+# Exponer el puerto del servidor Plumber
 EXPOSE 8000
 
-# Arrancar el servidor
+# Comando para iniciar la aplicación
 CMD ["Rscript", "main.R"]
