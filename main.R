@@ -17,4 +17,5 @@ cat("  Abre ahora 'web/index.html' en tu navegador (Chrome o Edge para usar el m
 cat("======================================================\n")
 
 pr <- plumb("R_scripts/mod6_servidor_api.R")
+pr <- pr_static(pr, "/", "web")
 pr$run(host = "0.0.0.0", port = as.integer(Sys.getenv("PORT", "8000")))
